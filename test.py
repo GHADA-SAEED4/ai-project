@@ -350,3 +350,4 @@ print("=" * 60)
 print("\nResults saved in:")
 for size in board_sizes:
     print(f"  - cultural_results_{size}x{size}.csv")
+print()
