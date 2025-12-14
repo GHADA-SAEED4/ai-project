@@ -1,24 +1,39 @@
-# main.py - Simple Version
+# main.py - Complete Version with GUI and CLI
 # Main program entry point
 
 import sys
+import tkinter as tk
+from tkinter import messagebox
+import time
+
+# Import solvers from the Solvers package
 from SudokuBoard import SudokuBoard
 from BacktrackingSolver import BacktrackingSolver
 from CulturalAlgorithmSolver import CulturalAlgorithmSolver
 from PuzzleLoader import PuzzleLoader
 from Benchmarker import Benchmarker
 
-class SudokuApp:
-    """Main application"""
+# Import Geo class (your GUI/visualizer)
+from Visualizer import SudokuGUI
+
+try:
+    import tkinter as tk
+except ImportError:
+    tk = None
+
+# ========================================
+# CLI CLASS
+# ========================================
+class SudokuCLI:
+    """Command-Line Interface for Sudoku Solver"""
     
     def __init__(self):
-        """Initialize app"""
+        """Initialize CLI"""
         self.board = None
-        self.solver = None
         self.loader = PuzzleLoader()
     
-    def run_cli(self):
-        """Run command-line interface"""
+    def run(self):
+        """Run CLI"""
         print("=" * 50)
         print("   SUDOKU SOLVER")
         print("=" * 50)
@@ -36,26 +51,26 @@ class SudokuApp:
             choice = input("\nChoice: ").strip()
             
             if choice == "1":
-                self._load_from_file()
+                self.load_from_file()
             elif choice == "2":
-                self._enter_manually()
+                self.enter_manually()
             elif choice == "3":
-                self._load_sample()
+                self.load_sample()
             elif choice == "4":
-                self._solve_backtracking()
+                self.solve_backtracking()
             elif choice == "5":
-                self._solve_cultural()
+                self.solve_cultural()
             elif choice == "6":
-                self._compare_algorithms()
+                self.compare_algorithms()
             elif choice == "7":
-                self._run_benchmark()
+                self.run_benchmark()
             elif choice == "0":
                 print("Goodbye!")
                 break
             else:
                 print("Invalid choice!")
     
-    def _load_from_file(self):
+    def load_from_file(self):
         """Load puzzle from file"""
         filename = input("Enter filename: ").strip()
         self.board = self.loader.load_from_file(filename)
@@ -63,7 +78,7 @@ class SudokuApp:
             print("✓ Loaded!")
             self.board.display()
     
-    def _enter_manually(self):
+    def enter_manually(self):
         """Manual entry"""
         print("\nEnter 9 rows (use 0 for empty):")
         print("Example: 5 3 0 0 7 0 0 0 0")
@@ -86,7 +101,7 @@ class SudokuApp:
         print("\n✓ Puzzle entered!")
         self.board.display()
     
-    def _load_sample(self):
+    def load_sample(self):
         """Load sample puzzle"""
         print("\nDifficulty:")
         print("[1] Easy")
@@ -105,7 +120,7 @@ class SudokuApp:
         print(f"\n✓ Loaded {difficulty} puzzle!")
         self.board.display()
     
-    def _solve_backtracking(self):
+    def solve_backtracking(self):
         """Solve with backtracking"""
         if not self.board:
             print("✗ Load puzzle first!")
@@ -124,11 +139,11 @@ class SudokuApp:
         if success:
             print("✓ Solved!")
             solver.get_board().display()
-            self._print_metrics(solver.get_metrics())
+            self.print_metrics(solver.get_metrics())
         else:
             print("✗ No solution!")
     
-    def _solve_cultural(self):
+    def solve_cultural(self):
         """Solve with Cultural Algorithm"""
         if not self.board:
             print("✗ Load puzzle first!")
@@ -150,13 +165,13 @@ class SudokuApp:
         if success and solution:
             print("✓ Solved!")
             solution.display()
-            self._print_metrics(solver.get_metrics())
+            self.print_metrics(solver.get_metrics())
         else:
             print("✗ No perfect solution")
             if solver.population:
                 print(f"Best: {solver.population[0].conflicts} conflicts")
     
-    def _compare_algorithms(self):
+    def compare_algorithms(self):
         """Compare both algorithms"""
         if not self.board:
             print("✗ Load puzzle first!")
@@ -196,7 +211,7 @@ class SudokuApp:
             winner = "Backtracking" if bt_metrics['time'] < ca_metrics['time'] else "Cultural"
             print(f"\n🏆 Fastest: {winner}")
     
-    def _run_benchmark(self):
+    def run_benchmark(self):
         """Run full benchmark"""
         print("\n🔬 Running Benchmark...")
         benchmarker = Benchmarker()
@@ -210,7 +225,7 @@ class SudokuApp:
                 filename = "benchmark_results.json"
             benchmarker.save_results(results, filename)
     
-    def _print_metrics(self, metrics):
+    def print_metrics(self, metrics):
         """Print metrics nicely"""
         print("\n" + "-"*40)
         print("  Performance")
@@ -221,19 +236,68 @@ class SudokuApp:
         print("-"*40)
 
 
-# Main entry point
-if __name__ == "__main__":
-    app = SudokuApp()
+# ========================================
+# MAIN ENTRY POINT
+# ========================================
+def main():
+    """Main function - Choose GUI or CLI"""
+    print("=" * 50)
+    print("   SUDOKU SOLVER")
+    print("   Backtracking vs Cultural Algorithm")
+    print("=" * 50)
+    print("\nChoose Interface:")
+    print("[1] GUI (Graphical Interface) - Recommended")
+    print("[2] CLI (Command Line)")
+    print("[3] Benchmark Only")
+    print("[0] Exit")
     
-    # Check command-line arguments
+    choice = input("\nChoice: ").strip()
+    
+    if choice == "1":
+        # Launch GUI
+        print("\n🚀 Launching GUI...")
+        root = tk.Tk()
+        app = SudokuGUI(root)
+        root.mainloop()
+    
+    elif choice == "2":
+        # Launch CLI
+        print("\n🚀 Launching CLI...")
+        cli = SudokuCLI()
+        cli.run()
+    
+    elif choice == "3":
+        # Run benchmark
+        print("\n🔬 Running Benchmark...")
+        benchmarker = Benchmarker()
+        results = benchmarker.run_full_benchmark()
+        benchmarker.display_results(results)
+        benchmarker.save_results(results, "benchmark_results.json")
+    
+    elif choice == "0":
+        print("Goodbye!")
+    
+    else:
+        print("Invalid choice!")
+
+
+if __name__ == "__main__":
+    # Check for command-line arguments
     if len(sys.argv) > 1:
-        if sys.argv[1] == "--benchmark":
+        if sys.argv[1] == "--gui":
+            root = tk.Tk()
+            app = SudokuGUI(root)
+            root.mainloop()
+        elif sys.argv[1] == "--cli":
+            cli = SudokuCLI()
+            cli.run()
+        elif sys.argv[1] == "--benchmark":
             benchmarker = Benchmarker()
             results = benchmarker.run_full_benchmark()
             benchmarker.display_results(results)
         else:
             print(f"Unknown option: {sys.argv[1]}")
-            print("Usage: python main.py [--benchmark]")
+            print("Usage: python main.py [--gui|--cli|--benchmark]")
     else:
-        # Default: CLI mode
-        app.run_cli()
+        # Default: Show menu
+        main()

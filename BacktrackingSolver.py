@@ -1,16 +1,19 @@
-# BacktrackingSolver.py - Size-Agnostic Version
-# Solves Sudoku of any size (4x4, 6x6, 9x9) using backtracking
+# BacktrackingSolver.py - COMPLETE FIXED VERSION
+# Works with ANY board size (4×4, 9×9, 16×16, 25×25, etc.)
+# IMPORTANT: COPY THIS ENTIRE FILE - DELETE YOUR OLD ONE FIRST!
 
 from Solver import Solver
 
+
 class BacktrackingSolver(Solver):
-    """Backtracking algorithm solver that works with any grid size"""
+    """Backtracking algorithm solver - works with any size"""
     
     def __init__(self, board, use_heuristic=True):
         """Initialize solver"""
         super().__init__(board)
         self.use_heuristic = use_heuristic
-        self.size = board.size  # ✅ Get the board size dynamically
+        # IMPORTANT: Store the board size
+        self.size = board.size
     
     def solve(self):
         """Solve the puzzle"""
@@ -37,7 +40,7 @@ class BacktrackingSolver(Solver):
         
         row, col = empty_cell
         
-        # ✅ Try numbers from 1 to board size (not hardcoded to 9)
+        # IMPORTANT: Try numbers from 1 to board size (not just 1-9!)
         for num in range(1, self.size + 1):
             if self.board.is_valid(row, col, num):
                 # Place the number
@@ -73,10 +76,11 @@ class BacktrackingSolver(Solver):
     
     def _find_best_cell(self):
         """Find empty cell with fewest valid options (MRV heuristic)"""
-        min_options = self.size + 1  # ✅ Use board size instead of hardcoded 10
+        # IMPORTANT: Use board size, not hardcoded 10
+        min_options = self.size + 1
         best_cell = None
         
-        # ✅ Loop through actual board size, not hardcoded 9
+        # IMPORTANT: Loop through ALL cells based on board size
         for i in range(self.size):
             for j in range(self.size):
                 if self.board.grid[i][j] == 0:
@@ -96,7 +100,7 @@ class BacktrackingSolver(Solver):
     def _count_valid_options(self, row, col):
         """Count how many valid numbers for this cell"""
         count = 0
-        # ✅ Try numbers from 1 to board size (not hardcoded to 9)
+        # IMPORTANT: Try all numbers from 1 to board size
         for num in range(1, self.size + 1):
             if self.board.is_valid(row, col, num):
                 count += 1
@@ -105,3 +109,48 @@ class BacktrackingSolver(Solver):
     def get_steps(self):
         """Get list of steps"""
         return self.steps
+
+
+# Test the solver
+if __name__ == "__main__":
+    from SudokuBoard import SudokuBoard
+    
+    print("Testing 4x4 solver:")
+    board4 = SudokuBoard(4, [
+        [1, 0, 0, 4],
+        [0, 4, 1, 0],
+        [4, 0, 3, 0],
+        [0, 3, 0, 1]
+    ])
+    print("Original:")
+    board4.display()
+    
+    solver4 = BacktrackingSolver(board4)
+    print(f"\nSolver size: {solver4.size}")
+    success = solver4.solve()
+    print(f"\nSolved: {success}")
+    if success:
+        board4.display()
+    
+    print("\n" + "="*50)
+    print("\nTesting 9x9 solver:")
+    board9 = SudokuBoard(9, [
+        [5, 3, 0, 0, 7, 0, 0, 0, 0],
+        [6, 0, 0, 1, 9, 5, 0, 0, 0],
+        [0, 9, 8, 0, 0, 0, 0, 6, 0],
+        [8, 0, 0, 0, 6, 0, 0, 0, 3],
+        [4, 0, 0, 8, 0, 3, 0, 0, 1],
+        [7, 0, 0, 0, 2, 0, 0, 0, 6],
+        [0, 6, 0, 0, 0, 0, 2, 8, 0],
+        [0, 0, 0, 4, 1, 9, 0, 0, 5],
+        [0, 0, 0, 0, 8, 0, 0, 7, 9]
+    ])
+    print("Original:")
+    board9.display()
+    
+    solver9 = BacktrackingSolver(board9)
+    print(f"\nSolver size: {solver9.size}")
+    success = solver9.solve()
+    print(f"\nSolved: {success}")
+    if success:
+        board9.display()
